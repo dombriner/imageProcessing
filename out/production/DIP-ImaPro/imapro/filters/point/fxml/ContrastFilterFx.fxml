@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+<ToolBar prefHeight="120.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.171">
+   <items>
+      <VBox alignment="CENTER_LEFT" spacing="5.0">
+         <children>
+            <Label text="Contrast" />
+            <Slider fx:id="contrastSlider" majorTickUnit="50.0" min="-100.0" minorTickCount="1" showTickLabels="true" showTickMarks="true" />
+         </children>
+         <padding>
+            <Insets right="20.0" />
+         </padding>
+      </VBox>
+      <VBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="10.0" spacing="5.0">
+         <children>
+            <Label text="Luminosity" />
+            <Slider fx:id="luminositySlider" majorTickUnit="50.0" min="-100.0" minorTickCount="1" showTickLabels="true" showTickMarks="true" />
+         </children>
+         <padding>
+            <Insets right="20.0" />
+         </padding>
+      </VBox>
+      <VBox alignment="CENTER_LEFT" layoutX="174.0" layoutY="10.0" spacing="5.0">
+         <children>
+            <CheckBox fx:id="negativeCheckbox" mnemonicParsing="false" text="Negative Image" />
+         </children>
+         <padding>
+            <Insets right="20.0" />
+         </padding>
+      </VBox>
+   </items>
+</ToolBar>
