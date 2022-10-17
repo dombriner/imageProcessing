@@ -17,7 +17,7 @@ public class FixedColorIndexFilter extends ImaproFilterFx {
     private List<Float[]> colorTable = new ArrayList<>();
 
     public FixedColorIndexFilter(FxEnvironment env) {
-        super(env, "Use fix 256 color table", false);
+        super(env, "Use fixed 256 color table", false);
         showColorTable = toolbar.newColumn().addCheckBox("Show color table", false);
         colorTable.add(new Float[]{0f / 255f, 0f / 255f, 0f / 255f});
         colorTable.add(new Float[]{128f / 255f, 0f / 255f, 0f / 255f});
