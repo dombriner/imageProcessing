@@ -7,7 +7,6 @@ import javafx.scene.control.ToggleGroup;
 import sugarcube.imapro.filters.ImaproFilterFx;
 import sugarcube.imapro.filters.ImaproFilterFxLoader;
 import sugarcube.imapro.image.FilterImage;
-import sugarcube.imapro.image.ImaproImage;
 import sugarcube.insight.core.FxEnvironment;
 
 
