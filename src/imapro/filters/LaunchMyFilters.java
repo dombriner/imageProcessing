@@ -7,6 +7,7 @@ import imapro.filters.assignment4.ConvolutionalMeanFilter;
 import imapro.filters.assignment4.GradientFilter;
 import imapro.filters.assignment4.LaplacianOfGaussianFilter;
 import imapro.filters.assignment4.MaximumMinimumFilter;
+import imapro.filters.assignment6.assignment3.CompressionDecompressionFilter;
 import imapro.filters.point.ContrastFilterFx;
 import sugarcube.imapro.ImaproFX;
 
@@ -21,6 +22,7 @@ public class LaunchMyFilters
                 ConvolutionalMeanFilter.LOADER,
                 LaplacianOfGaussianFilter.LOADER,
                 GradientFilter.LOADER,
-                MaximumMinimumFilter.LOADER);
+                MaximumMinimumFilter.LOADER,
+                CompressionDecompressionFilter.LOADER);
     }
 }
