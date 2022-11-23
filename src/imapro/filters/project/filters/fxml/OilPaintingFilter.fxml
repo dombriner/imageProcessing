@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+<ToolBar prefHeight="120.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.171">
+   <items>
+      <VBox alignment="CENTER_LEFT" spacing="5.0">
+         <children>
+            <Label text="Intensity Levels" />
+            <Slider fx:id="intensityLevelsSlider" majorTickUnit="10.0" min="1.0" max="256" minorTickCount="1" showTickLabels="true" showTickMarks="true" blockIncrement="5"/>
+         </children>
+         <padding>
+            <Insets right="20.0" />
+         </padding>
+      </VBox>
+      <VBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="10.0" spacing="5.0">
+         <children>
+            <Label text="Radius" />
+            <Slider fx:id="radiusSlider" majorTickUnit="5.0" min="0.0" max="100" minorTickCount="1" showTickLabels="true" showTickMarks="true" blockIncrement="1"/>
+         </children>
+         <padding>
+            <Insets right="20.0" />
+         </padding>
+      </VBox>
+      <VBox alignment="CENTER_LEFT" layoutX="174.0" layoutY="10.0" spacing="5.0">
+         <children>
+            <CheckBox fx:id="applyFilter" mnemonicParsing="false" selected="true" text="Apply Filter" />
+         </children>
+         <padding>
+            <Insets right="20.0" />
+         </padding>
+      </VBox>
+   </items>
+</ToolBar>

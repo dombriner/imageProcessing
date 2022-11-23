@@ -297,11 +297,11 @@ public class FixedColorIndexFilter extends ImaproFilterFx {
                 for (int x = 0; x < maxWidth; x++) {
                     float[] oldValue = image.source.getPixel(x, y);
                     Float[] currentColor = colorTable.get(0);
-                    float currentDistance = getDistanceSqaured(oldValue, currentColor);
+                    float currentDistance = getDistanceSquared(oldValue, currentColor);
                     for (Float[] color : colorTable) {
-                        if (currentDistance > getDistanceSqaured(oldValue, color)) {
+                        if (currentDistance > getDistanceSquared(oldValue, color)) {
                             currentColor = color;
-                            currentDistance = getDistanceSqaured(oldValue, color);
+                            currentDistance = getDistanceSquared(oldValue, color);
                         }
                     }
                     image.result.setPixel(x, y, new float[]{currentColor[0], currentColor[1], currentColor[2]});
@@ -311,7 +311,7 @@ public class FixedColorIndexFilter extends ImaproFilterFx {
     }
 
     // Note: Square of distance suffices, as we only care for the order, not the actual value.
-    public float getDistanceSqaured(float[] first, Float[] second) {
+    public float getDistanceSquared(float[] first, Float[] second) {
         return (first[0] - second[0]) * (first[0] - second[0])
                 + (first[1] - second[1]) * (first[1] - second[1])
                 + (first[2] - second[2]) * (first[2] - second[2]);

@@ -7,8 +7,9 @@ import imapro.filters.assignment4.ConvolutionalMeanFilter;
 import imapro.filters.assignment4.GradientFilter;
 import imapro.filters.assignment4.LaplacianOfGaussianFilter;
 import imapro.filters.assignment4.MaximumMinimumFilter;
-import imapro.filters.assignment6.assignment3.CompressionDecompressionFilter;
+import imapro.filters.assignment6.CompressionDecompressionFilter;
 import imapro.filters.point.ContrastFilterFx;
+import imapro.filters.project.filters.OilPaintingFilter;
 import sugarcube.imapro.ImaproFX;
 
 public class LaunchMyFilters
@@ -16,13 +17,14 @@ public class LaunchMyFilters
     public static void main(String[] args)
     {
         ImaproFX.LaunchAll(ContrastFilterFx.LOADER,
-                FlippingFilter.LOADER,
-                FixedColorIndexFilter.LOADER,
-                HistogramEqualizer.LOADER,
-                ConvolutionalMeanFilter.LOADER,
-                LaplacianOfGaussianFilter.LOADER,
-                GradientFilter.LOADER,
-                MaximumMinimumFilter.LOADER,
-                CompressionDecompressionFilter.LOADER);
+//                FlippingFilter.LOADER,
+//                FixedColorIndexFilter.LOADER,
+//                HistogramEqualizer.LOADER,
+//                ConvolutionalMeanFilter.LOADER,
+//                LaplacianOfGaussianFilter.LOADER,
+//                GradientFilter.LOADER,
+//                MaximumMinimumFilter.LOADER,
+//                CompressionDecompressionFilter.LOADER,
+                OilPaintingFilter.LOADER);
     }
 }

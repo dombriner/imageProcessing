@@ -1,4 +1,4 @@
-package imapro.filters.assignment6.assignment3;
+package imapro.filters.assignment6;
 
 import imapro.filters.utils.CalcUtils;
 import sugarcube.imapro.filters.ImaproFilterFx;
