@@ -20,7 +20,7 @@ public class OilPaintingFilter extends ImaproFilterFx {
     public OilPaintingFilter(FxEnvironment env) {
         super(env, "Oil Painting Effect", false);
         intensityLevelsSlider = toolbar.addSlider("Intensity Levels", 1, 256, 20);
-        radiusSlider = toolbar.newColumn().addSlider("Radius", 0, 100, 3);
+        radiusSlider = toolbar.newColumn().addSlider("Radius", 0, 100, 4);
         applyFilter = toolbar.newColumn().addCheckBox("Apply Filter", true);
 
         intensityLevelsSlider.setBlockIncrement(1.0);

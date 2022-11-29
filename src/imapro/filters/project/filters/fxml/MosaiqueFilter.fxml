@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+<ToolBar prefHeight="120.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.171">
+   <items>
+      <VBox alignment="CENTER_LEFT" spacing="5.0">
+         <children>
+            <Label text="Average Tile Radius" />
+            <Slider fx:id="tileDistance" majorTickUnit="10.0" min="1.0" max="50" minorTickCount="1" showTickLabels="true" showTickMarks="true" blockIncrement="0.1"/>
+         </children>
+         <padding>
+            <Insets right="20.0" />
+         </padding>
+      </VBox>
+      <VBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="10.0" spacing="5.0">
+         <children>
+            <Label text="Maximum Iterations" />
+            <Slider fx:id="maxIterations" majorTickUnit="10.0" min="0" max="100" minorTickCount="1" showTickLabels="true" showTickMarks="true" blockIncrement="1"/>
+         </children>
+         <padding>
+            <Insets right="20.0" />
+         </padding>
+      </VBox>
+      <VBox alignment="CENTER_LEFT" layoutX="174.0" layoutY="10.0" spacing="5.0">
+         <children>
+            <Label text="Radius" />
+            <CheckBox fx:id="showGrid" mnemonicParsing="false" selected="false" text="Show Grid" />
+         </children>
+         <padding>
+            <Insets right="20.0" />
+         </padding>
+      </VBox>
+      <VBox alignment="CENTER_LEFT" layoutX="174.0" layoutY="10.0" spacing="5.0">
+         <children>
+            <CheckBox fx:id="applyFilter" mnemonicParsing="false" selected="false" text="Apply Filter" />
+         </children>
+         <padding>
+            <Insets right="20.0" />
+         </padding>
+      </VBox>
+   </items>
+</ToolBar>
