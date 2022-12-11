@@ -12,18 +12,20 @@ import sugarcube.insight.core.FxEnvironment;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 // Ripple: Don't zoom in, use the values from the other side
 // Oil Painting: Other metrics, what to do if two buckets have the same count of pixels in it
-// Must-have: Border
-// Ideas: Optimize initialization (dbscan), varied-size border based on contrast, min size, average color (?), glass effect, other metrics, border color, heat map (for initialization)
+// Ideas: Optimize initialization (dbscan), varied-size border based on contrast, average color (?), glass effect, other metrics, border color, heat map (for initialization)
 // DBSCAN: http://home.apache.org/~luc/commons-math-3.6-RC2-site/jacoco/org.apache.commons.math3.stat.clustering/DBSCANClusterer.java.html
 public class MosaiqueFilter extends ImaproFilterFx {
     public static ImaproFilterFxLoader LOADER = env -> new MosaiqueFilter(env);
-    public @FXML CheckBox applyFilter, showGrid;
-    public @FXML Slider averageTileRadius, maxIterationsSlider, minSiteDistanceSlider;
+    public @FXML
+    CheckBox applyFilter, showGrid;
+    public @FXML
+    Slider averageTileRadius, maxIterationsSlider, minSiteDistanceSlider;
     private int maxDistance = 1;
     private int terminalImprovement = 1; // Originally 0.01 – 1 makes calculations faster
 
@@ -94,11 +96,131 @@ public class MosaiqueFilter extends ImaproFilterFx {
                 System.out.println("Error improvement from " + lastError + " to " + currentError);
             }
 
+            finalPainting(image, sites);
+
+            start = Instant.now();
+            System.out.println("Calculating border...");
+            createBorders(image, sites, maxDistance);
+            System.out.println("Border calculated in " + Duration.between(start, Instant.now()));
+
             if (showGrid.isSelected())
                 showGrid(sites, image);
         } else {
             dontFilter(image);
         }
+    }
+
+    private void finalPainting(FilterImage image, ArrayList<Point> sites) {
+        Point startingSite = sites.get(0);
+        for (int y = 0; y < image.source.getHeight(); y++) {
+            for (int x = 0; x < image.source.getWidth(); x++) {
+                float[] nearestSiteColor = Arrays.copyOf(getNearestSiteColor(image, x, y, sites, startingSite), 3);
+                image.result.setPixel(x, y, nearestSiteColor);
+            }
+        }
+    }
+
+    private void createBorders(FilterImage image, ArrayList<Point> sites, int maxDistance) {
+        boolean unfinishedBorders = true;
+        ArrayList<Point> borderPixels = new ArrayList<>();
+
+        int lastSize = -1;
+        while (unfinishedBorders && lastSize < borderPixels.size()) {
+            lastSize = borderPixels.size();
+            unfinishedBorders = false;
+            for (int y = 0; y < image.source.getHeight(); y++) {
+                for (int x = 0; x < image.source.getWidth(); x++) {
+                    if (hasOtherColored4Neighbour(image, x, y, borderPixels)) {
+                        unfinishedBorders = true;
+                        Point next = createBorderIfOtherColored4NeighbourRight(image, x, y, sites, maxDistance, borderPixels);
+                        if (next != null)
+                            borderPixels.add(next);
+                        next = createBorderIfOtherColored4NeighbourDown(image, x, y, sites, maxDistance, borderPixels);
+                        if (next != null)
+                            borderPixels.add(next);
+                    }
+                }
+            }
+        }
+        for (Point borderPixel : borderPixels) {
+            image.result.setPixel((int) borderPixel.x, (int) borderPixel.y, 0, 0, 0);
+        }
+    }
+
+    private boolean hasOtherColored4Neighbour(FilterImage image, int x, int y, ArrayList<Point> borderPixels) {
+        if (borderPixels.contains(new Point(x, y)))
+            return false;
+        float[] siteColor = Arrays.copyOf(image.result.getPixel(x, y), 3);
+        if (x + 1 < image.result.getWidth()) {
+            if (hasOtherColor(x + 1, y, image, siteColor, borderPixels))
+                return true;
+        }
+        if (y + 1 < image.result.getHeight()) {
+            if (hasOtherColor(x, y + 1, image, siteColor, borderPixels))
+                return true;
+        }
+        if (x - 1 >= 0) {
+            if (hasOtherColor(x - 1, y, image, siteColor, borderPixels))
+                return true;
+        }
+        if (y - 1 >= 0) {
+            if (hasOtherColor(x, y - 1, image, siteColor, borderPixels))
+                return true;
+        }
+        return false;
+    }
+
+    private boolean hasOtherColor(int x, int y, FilterImage image, float[] siteColor, ArrayList<Point> borderPixels) {
+        if (borderPixels.contains(new Point(x, y)))
+            return false;
+        float[] rightNeighbourColor = Arrays.copyOf(image.result.getPixel(x, y), 3);
+        return !Arrays.equals(rightNeighbourColor, siteColor);
+    }
+
+    private Point createBorderIfOtherColored4NeighbourRight(FilterImage image, int x, int y, ArrayList<Point> sites, int maxDistance, ArrayList<Point> borderPixels) {
+        float[] siteColor = Arrays.copyOf(image.result.getPixel(x, y), 3);
+        if (x + 1 < image.result.getWidth() && !borderPixels.contains(new Point(x + 1, y))) {
+            float[] rightNeighbourColor = Arrays.copyOf(image.result.getPixel(x + 1, y), 3);
+            if (!Arrays.equals(rightNeighbourColor, siteColor)) {
+                if (getNearestTwoSitesDistancesDifference(x, y, sites, maxDistance) <= getNearestTwoSitesDistancesDifference(x + 1, y, sites, maxDistance)) {
+                    return new Point(x, y);
+                } else {
+                    return new Point(x + 1, y);
+                }
+            }
+        }
+        return null;
+    }
+
+    private Point createBorderIfOtherColored4NeighbourDown(FilterImage image, int x, int y, ArrayList<Point> sites, int maxDistance, ArrayList<Point> borderPixels) {
+        float[] siteColor = Arrays.copyOf(image.result.getPixel(x, y), 3);
+        if (y + 1 < image.result.getHeight() && !borderPixels.contains(new Point(x, y + 1))) {
+            float[] downNeighbourColor = Arrays.copyOf(image.result.getPixel(x, y + 1), 3);
+            if (!Arrays.equals(downNeighbourColor, siteColor)) {
+                if (getNearestTwoSitesDistancesDifference(x, y, sites, maxDistance) <= getNearestTwoSitesDistancesDifference(x, y + 1, sites, maxDistance)) {
+                    return new Point(x, y);
+                } else {
+                    return new Point(x, y + 1);
+                }
+            }
+        }
+        return null;
+    }
+
+    private int getNearestTwoSitesDistancesDifference(int x, int y, ArrayList<Point> sites, int maxDistance) {
+        int nearestDistance = Integer.MAX_VALUE;
+        int secondNearestDistance = Integer.MAX_VALUE;
+        for (Point site : sites) {
+            if (site.x - x > 2 * maxDistance || site.y - y > 2 * maxDistance)
+                continue;
+            if (getDistanceSquared(x, y, site) < nearestDistance) {
+                secondNearestDistance = nearestDistance;
+                nearestDistance = (int) getDistanceSquared(x, y, site);
+            } else if (getDistanceSquared(x, y, site) < secondNearestDistance) {
+                secondNearestDistance = (int) getDistanceSquared(x, y, site);
+            }
+        }
+        return secondNearestDistance - nearestDistance;
     }
 
     private void paintNewLocalImage(FilterImage image, ArrayList<Point> sites, int siteIndex, int maxDistance) {
@@ -143,7 +265,7 @@ public class MosaiqueFilter extends ImaproFilterFx {
         for (int xDiff = -1; xDiff <= 1; xDiff++) {
             for (int yDiff = -1; yDiff <= 1; yDiff += 1) {
                 if (site.x + xDiff < 0 || site.x + xDiff >= image.source.getWidth())
-                    break;
+                    continue;
                 if (site.y + yDiff < 0 || site.y + yDiff >= image.source.getHeight())
                     continue;
                 if (yDiff == 0 && xDiff == yDiff)
@@ -154,7 +276,7 @@ public class MosaiqueFilter extends ImaproFilterFx {
                 for (Point minDistSite : minDistanceSites)
                     if (getDistanceSquared(candidateSite, minDistSite) < minSiteDist * minSiteDist) {
                         isCandidate = false;
-                }
+                    }
                 if (isCandidate)
                     alternativeSites.add(new Point(site.x + xDiff, site.y + yDiff));
             }
