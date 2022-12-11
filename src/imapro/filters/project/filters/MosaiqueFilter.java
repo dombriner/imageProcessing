@@ -1,6 +1,5 @@
 package imapro.filters.project.filters;
 
-import imapro.filters.utils.CalcUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Slider;
@@ -13,24 +12,31 @@ import sugarcube.insight.core.FxEnvironment;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
-// Use zoom in
+// Ripple: Don't zoom in, use the values from the other side
+// Oil Painting: Other metrics, what to do if two buckets have the same count of pixels in it
+// Must-have: Border
+// Ideas: Optimize initialization (dbscan), varied-size border based on contrast, min size, average color (?), glass effect, other metrics, border color, heat map (for initialization)
+// DBSCAN: http://home.apache.org/~luc/commons-math-3.6-RC2-site/jacoco/org.apache.commons.math3.stat.clustering/DBSCANClusterer.java.html
 public class MosaiqueFilter extends ImaproFilterFx {
     public static ImaproFilterFxLoader LOADER = env -> new MosaiqueFilter(env);
-    public @FXML
-    CheckBox applyFilter, showGrid;
-    public @FXML
-    Slider averageTileRadius, maxIterationsSlider;
+    public @FXML CheckBox applyFilter, showGrid;
+    public @FXML Slider averageTileRadius, maxIterationsSlider, minSiteDistanceSlider;
     private int maxDistance = 1;
+    private int terminalImprovement = 1; // Originally 0.01 – 1 makes calculations faster
 
     public MosaiqueFilter(FxEnvironment env) {
         super(env, "Mosaïque Effect", false);
         averageTileRadius = toolbar.addSlider("Average radius of tile", 1, 50, 5);
+        minSiteDistanceSlider = toolbar.addSlider("Minimum site distance", 1, 50, 3);
         maxIterationsSlider = toolbar.newColumn().addSlider("Maximum Iterations", 0, 100, 10);
         showGrid = toolbar.newColumn().addCheckBox("Show Grid", false);
         applyFilter = toolbar.newColumn().addCheckBox("Apply Filter", false);
 
         averageTileRadius.setBlockIncrement(0.5);
+        minSiteDistanceSlider.setBlockIncrement(1);
         maxIterationsSlider.setBlockIncrement(1);
     }
 
@@ -38,6 +44,7 @@ public class MosaiqueFilter extends ImaproFilterFx {
     public void process(FilterImage image) {
         if (applyFilter.isSelected()) {
             double tileRadius = averageTileRadius.getValue();
+            int minSiteDist = (int) minSiteDistanceSlider.getValue();
             int maxIterations = (int) maxIterationsSlider.getValue();
             int height = image.source.getHeight();
             int width = image.source.getWidth();
@@ -53,9 +60,8 @@ public class MosaiqueFilter extends ImaproFilterFx {
             System.out.println("Color error calculated in " + Duration.between(start, Instant.now()));
 
             for (int it = 0; it < maxIterations; it++) {
-                if (Math.abs(lastError - currentError) < 0.01) {
+                if (Math.abs(lastError - currentError) < terminalImprovement) {
                     System.out.println("Error improvement under threshold, stopping iterations.");
-                    it = maxIterations;
                     break;
                 }
                 lastError = currentError;
@@ -66,7 +72,7 @@ public class MosaiqueFilter extends ImaproFilterFx {
                     double minErrorDiff = 0;
                     boolean newSite = false;
 
-                    ArrayList<Point> alternativeSites = getAlternativeSites(site, image);
+                    ArrayList<Point> alternativeSites = getAlternativeSites(site, image, sites, minSiteDist);
                     for (Point alternativeSite : alternativeSites) {
                         sites.set(idx, alternativeSite);
                         double errorDifference = calculateColorErrorDifference(image, sites, idx, maxDistance);
@@ -130,9 +136,10 @@ public class MosaiqueFilter extends ImaproFilterFx {
         return errorDifference;
     }
 
-    private ArrayList<Point> getAlternativeSites(Point site, FilterImage image) {
+    private ArrayList<Point> getAlternativeSites(Point site, FilterImage image, ArrayList<Point> sites, int minSiteDist) {
         ArrayList<Point> alternativeSites = new ArrayList<>();
 
+        List<Point> minDistanceSites = sites.stream().filter(point -> getDistanceSquared(site, point) <= (minSiteDist + 1) * (minSiteDist + 1) && getDistanceSquared(site, point) > 0).collect(Collectors.toList());
         for (int xDiff = -1; xDiff <= 1; xDiff++) {
             for (int yDiff = -1; yDiff <= 1; yDiff += 1) {
                 if (site.x + xDiff < 0 || site.x + xDiff >= image.source.getWidth())
@@ -141,7 +148,15 @@ public class MosaiqueFilter extends ImaproFilterFx {
                     continue;
                 if (yDiff == 0 && xDiff == yDiff)
                     continue;
-                alternativeSites.add(new Point(site.x + xDiff, site.y + yDiff));
+
+                Point candidateSite = new Point(site.x + xDiff, site.y + yDiff);
+                boolean isCandidate = true;
+                for (Point minDistSite : minDistanceSites)
+                    if (getDistanceSquared(candidateSite, minDistSite) < minSiteDist * minSiteDist) {
+                        isCandidate = false;
+                }
+                if (isCandidate)
+                    alternativeSites.add(new Point(site.x + xDiff, site.y + yDiff));
             }
         }
         return alternativeSites;
@@ -195,6 +210,10 @@ public class MosaiqueFilter extends ImaproFilterFx {
     private long getDistanceSquared(int x, int y, Point point) {
         return (x - point.x) * (x - point.x)
                 + (y - point.y) * (y - point.y);
+    }
+
+    private long getDistanceSquared(Point a, Point b) {
+        return getDistanceSquared((int) a.x, (int) a.y, b);
     }
 
     private boolean isWithinImage(ImaproImage image, int coord, boolean height) {

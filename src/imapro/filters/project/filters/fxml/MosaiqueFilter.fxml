@@ -10,6 +10,10 @@
             <Label text="Average Tile Radius" />
             <Slider fx:id="tileDistance" majorTickUnit="10.0" min="1.0" max="50" minorTickCount="1" showTickLabels="true" showTickMarks="true" blockIncrement="0.1"/>
          </children>
+         <children>
+            <Label text="Average Tile Radius" />
+            <Slider fx:id="minSiteDistance" majorTickUnit="3.0" min="1.0" max="10" minorTickCount="1" showTickLabels="true" showTickMarks="true" blockIncrement="1.0"/>
+         </children>
          <padding>
             <Insets right="20.0" />
          </padding>
