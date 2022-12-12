@@ -11,6 +11,7 @@ import imapro.filters.assignment6.CompressionDecompressionFilter;
 import imapro.filters.point.ContrastFilterFx;
 import imapro.filters.project.filters.MosaiqueFilter;
 import imapro.filters.project.filters.OilPaintingFilter;
+import imapro.filters.project.filters.fxml.RippleFilter;
 import sugarcube.imapro.ImaproFX;
 
 public class LaunchMyFilters
@@ -27,6 +28,7 @@ public class LaunchMyFilters
 //                MaximumMinimumFilter.LOADER,
 //                CompressionDecompressionFilter.LOADER,
                 OilPaintingFilter.LOADER,
-                MosaiqueFilter.LOADER);
+                MosaiqueFilter.LOADER,
+                RippleFilter.LOADER);
     }
 }

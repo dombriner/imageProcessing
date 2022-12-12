@@ -11,7 +11,7 @@
             <Slider fx:id="tileDistance" majorTickUnit="10.0" min="1.0" max="50" minorTickCount="1" showTickLabels="true" showTickMarks="true" blockIncrement="0.1"/>
          </children>
          <children>
-            <Label text="Average Tile Radius" />
+            <Label text="Minimum Voronoi Site-to-Site Distance" />
             <Slider fx:id="minSiteDistance" majorTickUnit="3.0" min="1.0" max="10" minorTickCount="1" showTickLabels="true" showTickMarks="true" blockIncrement="1.0"/>
          </children>
          <padding>
@@ -29,8 +29,12 @@
       </VBox>
       <VBox alignment="CENTER_LEFT" layoutX="174.0" layoutY="10.0" spacing="5.0">
          <children>
-            <Label text="Radius" />
+            <Label text="Show Grid" />
             <CheckBox fx:id="showGrid" mnemonicParsing="false" selected="false" text="Show Grid" />
+         </children>
+         <children>
+            <Label text="Show Border" />
+            <CheckBox fx:id="showBorder" mnemonicParsing="false" selected="false" text="Show Border" />
          </children>
          <padding>
             <Insets right="20.0" />

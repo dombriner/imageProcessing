@@ -16,14 +16,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// Ripple: Don't zoom in, use the values from the other side
 // Oil Painting: Other metrics, what to do if two buckets have the same count of pixels in it
 // Ideas: Optimize initialization (dbscan), varied-size border based on contrast, average color (?), glass effect, other metrics, border color, heat map (for initialization)
 // DBSCAN: http://home.apache.org/~luc/commons-math-3.6-RC2-site/jacoco/org.apache.commons.math3.stat.clustering/DBSCANClusterer.java.html
 public class MosaiqueFilter extends ImaproFilterFx {
     public static ImaproFilterFxLoader LOADER = env -> new MosaiqueFilter(env);
     public @FXML
-    CheckBox applyFilter, showGrid;
+    CheckBox applyFilter, showGrid, showBorder;
     public @FXML
     Slider averageTileRadius, maxIterationsSlider, minSiteDistanceSlider;
     private int maxDistance = 1;
@@ -35,6 +34,7 @@ public class MosaiqueFilter extends ImaproFilterFx {
         minSiteDistanceSlider = toolbar.addSlider("Minimum site distance", 1, 50, 3);
         maxIterationsSlider = toolbar.newColumn().addSlider("Maximum Iterations", 0, 100, 10);
         showGrid = toolbar.newColumn().addCheckBox("Show Grid", false);
+        showBorder = toolbar.addCheckBox("Show Border", true);
         applyFilter = toolbar.newColumn().addCheckBox("Apply Filter", false);
 
         averageTileRadius.setBlockIncrement(0.5);
@@ -96,12 +96,17 @@ public class MosaiqueFilter extends ImaproFilterFx {
                 System.out.println("Error improvement from " + lastError + " to " + currentError);
             }
 
-            finalPainting(image, sites);
-
             start = Instant.now();
-            System.out.println("Calculating border...");
-            createBorders(image, sites, maxDistance);
-            System.out.println("Border calculated in " + Duration.between(start, Instant.now()));
+            System.out.println("Final paint job...");
+            finalPainting(image, sites);
+            System.out.println("Final tiles painted in " + Duration.between(start, Instant.now()));
+
+            if (showBorder.isSelected()) {
+                start = Instant.now();
+                System.out.println("Calculating border...");
+                createBorders(image, sites, maxDistance);
+                System.out.println("Border calculated in " + Duration.between(start, Instant.now()));
+            }
 
             if (showGrid.isSelected())
                 showGrid(sites, image);

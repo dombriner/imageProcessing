@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+<ToolBar prefHeight="120.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.171">
+   <items>
+      <VBox alignment="CENTER_LEFT" spacing="5.0">
+         <children>
+            <Label text="Amplitude X" />
+            <Slider fx:id="amplitudeSliderX" majorTickUnit="10.0" min="1.0" max="256" minorTickCount="1" showTickLabels="true" showTickMarks="true" blockIncrement="1.0"/>
+         </children>
+         <children>
+            <Label text="Frequency (relative to height) X" />
+            <Slider fx:id="frequencySliderX" majorTickUnit="5.0" min="0.1" max="1000" minorTickCount="1" showTickLabels="true" showTickMarks="true" blockIncrement="0.5"/>
+         </children>
+         <padding>
+            <Insets right="20.0" />
+         </padding>
+      </VBox>
+      <VBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="10.0" spacing="5.0">
+         <children>
+            <Label text="Amplitude Y" />
+            <Slider fx:id="amplitudeSliderY" majorTickUnit="10.0" min="1.0" max="256" minorTickCount="1" showTickLabels="true" showTickMarks="true" blockIncrement="1.0"/>
+         </children>
+         <children>
+            <Label text="Frequency (relative to width) Y" />
+            <Slider fx:id="frequencySliderY" majorTickUnit="5.0" min="0.1" max="1000" minorTickCount="1" showTickLabels="true" showTickMarks="true" blockIncrement="0.5"/>
+         </children>
+         <padding>
+            <Insets right="20.0" />
+         </padding>
+      </VBox>
+      <VBox alignment="CENTER_LEFT" layoutX="174.0" layoutY="10.0" spacing="5.0">
+         <children>
+            <CheckBox fx:id="interpolateValuse" mnemonicParsing="false" selected="true" text="Use interpolation" />
+         </children>
+         <padding>
+            <Insets right="20.0" />
+         </padding>
+      </VBox>
+      <VBox alignment="CENTER_LEFT" layoutX="174.0" layoutY="10.0" spacing="5.0">
+         <children>
+            <CheckBox fx:id="applyFilter" mnemonicParsing="false" selected="true" text="Apply Filter" />
+         </children>
+         <padding>
+            <Insets right="20.0" />
+         </padding>
+      </VBox>
+   </items>
+</ToolBar>
