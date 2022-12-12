@@ -1,5 +1,6 @@
 package imapro.filters.utils;
 
+import imapro.filters.project.filters.MosaiqueFilter;
 import sugarcube.imapro.image.FilterImage;
 
 public class CalcUtils {
@@ -44,4 +45,37 @@ public class CalcUtils {
             virtualHeight = - virtualHeight;
         return image.source.getValue(virtualWidth % imageWidth, virtualHeight % imageHeight);
     }
+
+
+    public int power(int base, int exponent) {
+        if (exponent < 0)
+            return - 1;
+        if (exponent == 0)
+            return 1;
+        if (exponent == 1)
+            return base;
+        return base * power(base, --exponent);
+    }
+
+    /**
+     * Returns the distance of (firstX, firstY) to (secondX, secondY) according to the p-norm given by the parameter
+     *  norm, but without taking the costly root
+     */
+    public int getDistanceNoRoot(int firstX, int firstY, int secondX, int secondY, int norm) {
+        return power(firstX - secondX, norm) + power(firstY - secondY, norm);
+    }
+
+    /**
+     * Returns the distance of (firstX, firstY) to (secondX, secondY) according to the p-norm given by the parameter
+     *  norm, but without taking the costly root
+     */
+    public int getDistanceNoRoot(int x, int y, MosaiqueFilter.Point point, int norm) {
+        return power((int) (x - point.getX()), norm) + power((int) (y - point.getY()), norm);
+    }
+
+    public int getDistanceNoRoot(MosaiqueFilter.Point a, MosaiqueFilter.Point b, int norm) {
+        return getDistanceNoRoot((int) a.getX(), (int) a.getY(), b, norm);
+    }
+
+
 }

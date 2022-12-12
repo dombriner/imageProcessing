@@ -1,4 +1,4 @@
-package imapro.filters.project.filters.fxml;
+package imapro.filters.project.filters;
 
 import imapro.filters.utils.CalcUtils;
 import javafx.fxml.FXML;

@@ -146,25 +146,7 @@ public class OilPaintingFilter extends ImaproFilterFx {
     }
 
     public boolean isInsideRadius(int firstX, int firstY, int secondX, int secondY, int radius, int norm) {
-        return getDistanceNoRoot(firstX, firstY, secondX, secondY, norm) <= power(radius, norm);
-    }
-
-    /**
-     * Returns the distance of (firstX, firstY) to (secondX, secondY) according to the p-norm given by the parameter
-     *  norm, but without taking the costly root
-     */
-    public int getDistanceNoRoot(int firstX, int firstY, int secondX, int secondY, int norm) {
-        return power(firstX - secondX, norm) + power(firstY - secondY, norm);
-    }
-
-    public int power(int base, int exponent) {
-        if (exponent < 0)
-            return - 1;
-        if (exponent == 0)
-            return 1;
-        if (exponent == 1)
-            return base;
-        return base * power(base, --exponent);
+        return utils.getDistanceNoRoot(firstX, firstY, secondX, secondY, norm) <= utils.power(radius, norm);
     }
 
     // Just do nothing
