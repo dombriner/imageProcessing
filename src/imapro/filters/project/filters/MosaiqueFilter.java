@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// Oil Painting: What to do if two buckets have the same count of pixels in it
 // Ideas: Optimize initialization (dbscan), varied-size border based on contrast, average color (?), glass effect, other metrics, border color, heat map (for initialization)
 // DBSCAN: http://home.apache.org/~luc/commons-math-3.6-RC2-site/jacoco/org.apache.commons.math3.stat.clustering/DBSCANClusterer.java.html
 public class MosaiqueFilter extends ImaproFilterFx {

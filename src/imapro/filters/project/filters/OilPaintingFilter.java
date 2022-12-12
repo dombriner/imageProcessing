@@ -83,7 +83,7 @@ public class OilPaintingFilter extends ImaproFilterFx {
      * Does some calculations with the pixel and fills the buckets with the corresponding values
      */
     private void fillBuckets(FilterImage image, int xCoord, int yCoord, int intensityLevels, int[] intensityLevelsCount, int[] redSum, int[] greenSum, int[] blueSum) {
-        int intensityLevel = (int) (image.source.getValue(xCoord, yCoord) * (intensityLevels - 1));
+        int intensityLevel = getIntensityLevelOfPixel(image, xCoord, yCoord, intensityLevels);
 
         intensityLevelsCount[intensityLevel]++;
         float[] rgb = image.source.getPixel(xCoord, yCoord);
@@ -92,10 +92,24 @@ public class OilPaintingFilter extends ImaproFilterFx {
         blueSum[intensityLevel] += utils.intensityToPixelValue(rgb[2]);
     }
 
-    private int getMaxIntensityLevel(int[] intensityLevelsCount, int intensityLevels) {
+    private int getIntensityLevelOfPixel(FilterImage image, int x, int y, int intensityLevels) {
+        return (int) (image.source.getValue(x, y) * (intensityLevels - 1));
+    }
+
+    /**
+     * @param intensityLevelsCount Number of pixels for each intensity level bucket
+     * @param intensityLevels Number of intensity levels
+     * @param pixelIntensityLevel Intensity level of the source pixel considered. Used for "draws" between levels.
+     */
+    private int getMaxIntensityLevel(int[] intensityLevelsCount, int intensityLevels, int pixelIntensityLevel) {
         int maxIntensityLevel = 0;
         for (int i = 0; i < intensityLevels; i++) {
-            if (intensityLevelsCount[i] > intensityLevelsCount[maxIntensityLevel]) {
+            if  (intensityLevelsCount[i] < intensityLevelsCount[maxIntensityLevel])
+                continue;
+            if (intensityLevelsCount[i] == intensityLevelsCount[maxIntensityLevel]) {
+                if (Math.abs(i - pixelIntensityLevel) < Math.abs(maxIntensityLevel - pixelIntensityLevel))
+                    maxIntensityLevel = i;
+            } else {
                 maxIntensityLevel = i;
             }
         }
@@ -105,8 +119,9 @@ public class OilPaintingFilter extends ImaproFilterFx {
     /**
      * Calculates the value of the pixel in the image giving the buckets
      */
-    private void calculateFinalPixelValue(FilterImage image, int x, int y, int[] redSum, int[] greenSum, int[] blueSum, int[] intensityLevelsCount, int intensityLevel) {
-        int maxIntensityLevel = getMaxIntensityLevel(intensityLevelsCount, intensityLevel);
+    private void calculateFinalPixelValue(FilterImage image, int x, int y, int[] redSum, int[] greenSum, int[] blueSum, int[] intensityLevelsCount, int intensityLevels) {
+        int pixelIntensityLevel = getIntensityLevelOfPixel(image, x, y, intensityLevels);
+        int maxIntensityLevel = getMaxIntensityLevel(intensityLevelsCount, intensityLevels, pixelIntensityLevel);
 
         float red = (redSum[maxIntensityLevel] / ((float) intensityLevelsCount[maxIntensityLevel])) / 255f;
         float green = (greenSum[maxIntensityLevel] / ((float) intensityLevelsCount[maxIntensityLevel])) / 255f;
