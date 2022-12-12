@@ -14,17 +14,19 @@ import sugarcube.insight.core.FxEnvironment;
 public class OilPaintingFilter extends ImaproFilterFx {
     public static ImaproFilterFxLoader LOADER = env -> new OilPaintingFilter(env);
     public @FXML CheckBox applyFilter;
-    public @FXML Slider intensityLevelsSlider, radiusSlider;
+    public @FXML Slider intensityLevelsSlider, radiusSlider, normSlider;
     private CalcUtils utils = new CalcUtils();
 
     public OilPaintingFilter(FxEnvironment env) {
         super(env, "Oil Painting Effect", false);
         intensityLevelsSlider = toolbar.addSlider("Intensity Levels", 1, 256, 20);
         radiusSlider = toolbar.newColumn().addSlider("Radius", 0, 100, 4);
+        normSlider = toolbar.newColumn().addSlider("p-norm", 1, 10, 2);
         applyFilter = toolbar.newColumn().addCheckBox("Apply Filter", true);
 
         intensityLevelsSlider.setBlockIncrement(1.0);
         radiusSlider.setBlockIncrement(1.0);
+        normSlider.setBlockIncrement(1.0);
     }
 
     @Override
@@ -32,8 +34,9 @@ public class OilPaintingFilter extends ImaproFilterFx {
         if (applyFilter.isSelected()) {
             int radius = (int) radiusSlider.getValue();
             int intensityLevels = (int) intensityLevelsSlider.getValue();
+            int norm = (int) normSlider.getValue();
 
-            paintWithOil(image, radius, intensityLevels);
+            paintWithOil(image, radius, intensityLevels, norm);
         } else {
             dontFilter(image);
         }
@@ -42,10 +45,10 @@ public class OilPaintingFilter extends ImaproFilterFx {
     /**
      * Applies the oil painting filter to the image using the provided parameters
      */
-    private void paintWithOil(FilterImage image, int radius, int intensityLevels) {
+    private void paintWithOil(FilterImage image, int radius, int intensityLevels, int norm) {
         for (int y = 0; y < image.source.getHeight(); y++) {
             for (int x = 0; x < image.source.getWidth(); x++) {
-                calculatePixel(x, y, image, radius, intensityLevels);
+                calculatePixel(x, y, image, radius, intensityLevels, norm);
             }
         }
     }
@@ -54,8 +57,9 @@ public class OilPaintingFilter extends ImaproFilterFx {
      * Calculate the value of
      * @param x – x coord of the pixel
      * @param y - y coord of the pixel
+     * @param norm – p-norm to measure distance
      */
-    private void calculatePixel(int x, int y, FilterImage image, int radius, int intensityLevels) {
+    private void calculatePixel(int x, int y, FilterImage image, int radius, int intensityLevels, int norm) {
         // Create necessary buckets
         int[] intensityLevelsCount = new int[intensityLevels];
         int[] redSum = new int[intensityLevels];
@@ -64,7 +68,7 @@ public class OilPaintingFilter extends ImaproFilterFx {
 
         for (int scannerX = x - radius; scannerX <= x + radius; scannerX++) {
             for (int scannerY = y - radius; scannerY <= y + radius; scannerY++) {
-                if (isInsideRadius(scannerX, scannerY, x, y, radius)) {
+                if (isInsideRadius(scannerX, scannerY, x, y, radius, norm)) {
                     int xCoord = getSafeCoord(scannerX, image.source, false);
                     int yCoord = getSafeCoord(scannerY, image.source, true);
                     fillBuckets(image, xCoord, yCoord, intensityLevels, intensityLevelsCount, redSum, greenSum, blueSum);
@@ -126,14 +130,27 @@ public class OilPaintingFilter extends ImaproFilterFx {
         return virtualCoord;
     }
 
-    public boolean isInsideRadius(int firstX, int firstY, int secondX, int secondY, int radius) {
-        return getDistanceSquared(firstX, firstY, secondX, secondY) <= radius * radius;
+    public boolean isInsideRadius(int firstX, int firstY, int secondX, int secondY, int radius, int norm) {
+        return getDistanceNoRoot(firstX, firstY, secondX, secondY, norm) <= power(radius, norm);
     }
 
-    public float getDistanceSquared(int firstX, int firstY, int secondX, int secondY) {
-        return (firstX - secondX) * (firstX - secondX) + (firstY - secondY) * (firstY - secondY);
+    /**
+     * Returns the distance of (firstX, firstY) to (secondX, secondY) according to the p-norm given by the parameter
+     *  norm, but without taking the costly root
+     */
+    public int getDistanceNoRoot(int firstX, int firstY, int secondX, int secondY, int norm) {
+        return power(firstX - secondX, norm) + power(firstY - secondY, norm);
     }
 
+    public int power(int base, int exponent) {
+        if (exponent < 0)
+            return - 1;
+        if (exponent == 0)
+            return 1;
+        if (exponent == 1)
+            return base;
+        return base * power(base, --exponent);
+    }
 
     // Just do nothing
     private void dontFilter(FilterImage image) {
