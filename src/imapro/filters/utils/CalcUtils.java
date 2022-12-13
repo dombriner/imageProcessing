@@ -62,20 +62,6 @@ public class CalcUtils {
      *  norm, but without taking the costly root
      */
     public int getDistanceNoRoot(int firstX, int firstY, int secondX, int secondY, int norm) {
-        return power(firstX - secondX, norm) + power(firstY - secondY, norm);
+        return Math.abs(power(firstX - secondX, norm)) + Math.abs(power(firstY - secondY, norm));
     }
-
-    /**
-     * Returns the distance of (firstX, firstY) to (secondX, secondY) according to the p-norm given by the parameter
-     *  norm, but without taking the costly root
-     */
-    public int getDistanceNoRoot(int x, int y, MosaiqueFilter.Point point, int norm) {
-        return power((int) (x - point.getX()), norm) + power((int) (y - point.getY()), norm);
-    }
-
-    public int getDistanceNoRoot(MosaiqueFilter.Point a, MosaiqueFilter.Point b, int norm) {
-        return getDistanceNoRoot((int) a.getX(), (int) a.getY(), b, norm);
-    }
-
-
 }

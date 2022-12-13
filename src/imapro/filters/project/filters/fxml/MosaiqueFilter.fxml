@@ -42,6 +42,30 @@
       </VBox>
       <VBox alignment="CENTER_LEFT" layoutX="174.0" layoutY="10.0" spacing="5.0">
          <children>
+            <Label text="Epsilon" />
+            <Slider fx:id="epsilon" majorTickUnit="10.0" min="1" max="100" minorTickCount="1" showTickLabels="true" showTickMarks="true" blockIncrement="0.5"/>
+         </children>
+         <children>
+            <Label text="Min Cluster size" />
+            <Slider fx:id="minClusterSize" majorTickUnit="1.0" min="1" max="100" minorTickCount="1" showTickLabels="true" showTickMarks="true" blockIncrement="1"/>
+         </children>
+         <padding>
+            <Insets right="20.0" />
+         </padding>
+      </VBox>
+      <VBox alignment="CENTER_LEFT" layoutX="174.0" layoutY="10.0" spacing="5.0">
+         <children>
+            <CheckBox fx:id="smartInitialization" mnemonicParsing="false" selected="false" text="DBSCAN initialization" />
+         </children>
+         <children>
+            <CheckBox fx:id="heatMapInitialization" mnemonicParsing="false" selected="false" text="Heat Map Initialization" />
+         </children>
+         <padding>
+            <Insets right="20.0" />
+         </padding>
+      </VBox>
+      <VBox alignment="CENTER_LEFT" layoutX="174.0" layoutY="10.0" spacing="5.0">
+         <children>
             <CheckBox fx:id="applyFilter" mnemonicParsing="false" selected="false" text="Apply Filter" />
          </children>
          <padding>
