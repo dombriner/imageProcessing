@@ -11,17 +11,21 @@
             <Slider fx:id="tileDistance" majorTickUnit="10.0" min="1.0" max="50" minorTickCount="1" showTickLabels="true" showTickMarks="true" blockIncrement="0.1"/>
          </children>
          <children>
-            <Label text="Minimum Voronoi Site-to-Site Distance" />
-            <Slider fx:id="minSiteDistance" majorTickUnit="3.0" min="1.0" max="10" minorTickCount="1" showTickLabels="true" showTickMarks="true" blockIncrement="1.0"/>
+            <Label text="Maximum Iterations" />
+            <Slider fx:id="maxIterations" majorTickUnit="10.0" min="0" max="100" minorTickCount="1" showTickLabels="true" showTickMarks="true" blockIncrement="1"/>
          </children>
          <padding>
             <Insets right="20.0" />
          </padding>
       </VBox>
-      <VBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="10.0" spacing="5.0">
+      <VBox alignment="CENTER_LEFT" spacing="5.0">
          <children>
-            <Label text="Maximum Iterations" />
-            <Slider fx:id="maxIterations" majorTickUnit="10.0" min="0" max="100" minorTickCount="1" showTickLabels="true" showTickMarks="true" blockIncrement="1"/>
+            <Label text="Minimum Voronoi Site-to-Site Distance" />
+            <Slider fx:id="maxSiteDistance" majorTickUnit="10.0" min="5.0" max="100" minorTickCount="1" showTickLabels="true" showTickMarks="true" blockIncrement="1.0"/>
+         </children>
+         <children>
+            <Label text="Minimum Voronoi Site-to-Site Distance" />
+            <Slider fx:id="minSiteDistance" majorTickUnit="3.0" min="1.0" max="10" minorTickCount="1" showTickLabels="true" showTickMarks="true" blockIncrement="1.0"/>
          </children>
          <padding>
             <Insets right="20.0" />

@@ -20,15 +20,16 @@ public class MosaiqueFilter extends ImaproFilterFx {
     public @FXML
     CheckBox applyFilter, showGrid, showBorder, smartInitialization, heatMapInitialization;
     public @FXML
-    Slider averageTileRadius, maxIterationsSlider, minSiteDistanceSlider, epsilonSlider, minClusterSizeSlider;
+    Slider averageTileRadius, maxIterationsSlider, minSiteDistanceSlider, maxSiteDistanceSlider, epsilonSlider, minClusterSizeSlider;
     private int maxDistance = 1;
-    private int terminalImprovement = 1; // Originally 0.01 – 1 makes calculations faster
+    private double terminalImprovement = 0.1; // Originally 0.01 – 1 makes calculations faster
 
     public MosaiqueFilter(FxEnvironment env) {
         super(env, "Mosaïque Effect", false);
         averageTileRadius = toolbar.addSlider("Average radius of tile", 1, 50, 5);
+        maxIterationsSlider = toolbar.addSlider("Maximum Iterations", 0, 100, 10);
+        maxSiteDistanceSlider = toolbar.newColumn().addSlider("Maximum site distance", 5, 100, 13);
         minSiteDistanceSlider = toolbar.addSlider("Minimum site distance", 1, 50, 3);
-        maxIterationsSlider = toolbar.newColumn().addSlider("Maximum Iterations", 0, 100, 10);
         epsilonSlider = toolbar.newColumn().addSlider("Epsilon", 1, 300, 5);
         minClusterSizeSlider = toolbar.addSlider("Min Cluster Size", 1, 100, 5);
         smartInitialization = toolbar.newColumn().addCheckBox("DBSCAN initialization", false);
@@ -39,6 +40,7 @@ public class MosaiqueFilter extends ImaproFilterFx {
         applyFilter = toolbar.newColumn().addCheckBox("Apply Filter", false);
 
         averageTileRadius.setBlockIncrement(0.5);
+        maxSiteDistanceSlider.setBlockIncrement(1);
         minSiteDistanceSlider.setBlockIncrement(1);
         maxIterationsSlider.setBlockIncrement(1);
         epsilonSlider.setBlockIncrement(0.5);
@@ -49,6 +51,7 @@ public class MosaiqueFilter extends ImaproFilterFx {
     public void process(FilterImage image) {
         if (applyFilter.isSelected()) {
             double tileRadius = averageTileRadius.getValue();
+            int maxSiteDist = (int) maxSiteDistanceSlider.getValue();
             int minSiteDist = (int) minSiteDistanceSlider.getValue();
             int maxIterations = (int) maxIterationsSlider.getValue();
             int height = image.source.getHeight();
@@ -61,7 +64,7 @@ public class MosaiqueFilter extends ImaproFilterFx {
             if (smartInitialization.isSelected()) {
                 sites = initializeSitesDBScan(image, (float) epsilonSlider.getValue() / 100000, (int) minClusterSizeSlider.getValue(), 1.5);
             } else if (heatMapInitialization.isSelected() ){
-                sites = initializeSitesHeatMapStyle(image, tileRadius);
+                sites = initializeSitesHeatMapStyle(image, tileRadius, maxSiteDist);
             } else {
                 sites = initializeSitesNaïve(width, height, tileRadius);
             }
@@ -126,20 +129,21 @@ public class MosaiqueFilter extends ImaproFilterFx {
         }
     }
 
-    private List<Point> initializeSitesHeatMapStyle(FilterImage image, double averageTileRadius) {
+    private List<Point> initializeSitesHeatMapStyle(FilterImage image, double averageTileRadius, int maxSiteDist) {
         int width = image.source.getWidth();
         int height = image.source.getHeight();
         int size = width * height;
         double averageSize = averageTileRadius * averageTileRadius * Math.PI;
         double density = size / averageSize;
+        double maxSize = ((double) maxSiteDist / 2) * ((double) maxSiteDist / 2) * Math.PI;
 
         int numberOfTiles = (int) density;
         double overallScore = getHeatMapScore(image, 0, 0, width, height, width, height);
 
-        return calculateSites(image, overallScore, averageSize, numberOfTiles, 0, 0, width, height);
+        return calculateSites(image, overallScore, averageSize, maxSize, numberOfTiles, 0, 0, width, height);
     }
 
-    private List<Point> calculateSites(FilterImage image, double overallScore, double averageSize, int numberOfTiles, int xStart, int yStart, int xEnd, int yEnd) {
+    private List<Point> calculateSites(FilterImage image, double overallScore, double averageSize, double maxSize, int numberOfTiles, int xStart, int yStart, int xEnd, int yEnd) {
         double scorePerSite = overallScore / numberOfTiles;
         List<Point> sites = new ArrayList<>();
 
@@ -147,13 +151,16 @@ public class MosaiqueFilter extends ImaproFilterFx {
         if (((int) currentScore / scorePerSite) > 4 && (xEnd-xStart)*(yEnd-yStart) > 1.5 * averageSize) {
             int xHalf = (xEnd - xStart)/2 + xStart;
             int yHalf = (yEnd - yStart)/2 + yStart;
-            sites = addAllWithoutDuplicates(calculateSites(image, overallScore, averageSize, numberOfTiles, xStart, yStart, xHalf, yHalf), sites);
-            sites = addAllWithoutDuplicates(calculateSites(image, overallScore, averageSize, numberOfTiles, xHalf, yStart, xEnd, yHalf), sites);
-            sites = addAllWithoutDuplicates(calculateSites(image, overallScore, averageSize, numberOfTiles, xStart, yHalf, xHalf, yEnd), sites);
-            sites = addAllWithoutDuplicates(calculateSites(image, overallScore, averageSize, numberOfTiles, xHalf, yHalf, xEnd, yEnd), sites);
+            sites = addAllWithoutDuplicates(calculateSites(image, overallScore, averageSize, maxSize, numberOfTiles, xStart, yStart, xHalf, yHalf), sites);
+            sites = addAllWithoutDuplicates(calculateSites(image, overallScore, averageSize, maxSize, numberOfTiles, xHalf, yStart, xEnd, yHalf), sites);
+            sites = addAllWithoutDuplicates(calculateSites(image, overallScore, averageSize, maxSize, numberOfTiles, xStart, yHalf, xHalf, yEnd), sites);
+            sites = addAllWithoutDuplicates(calculateSites(image, overallScore, averageSize, maxSize, numberOfTiles, xHalf, yHalf, xEnd, yEnd), sites);
             return sites;
         } else {
             int sitesToCalculate = (int) Math.round(currentScore / scorePerSite);
+            int size = (xEnd - xStart) * (yEnd - yStart);
+            if (Math.ceil(size / maxSize) > sitesToCalculate)
+                sitesToCalculate = (int) Math.ceil(size / maxSize);
             return optimizeSites(image, xStart, xEnd, yStart, yEnd, sitesToCalculate);
         }
     }
