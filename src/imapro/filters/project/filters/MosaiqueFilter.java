@@ -15,7 +15,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 // Ideas: Optimize initialization (dbscan), varied-size border based on contrast, average color (?), glass effect, other metrics, border color
-// DBSCAN: http://home.apache.org/~luc/commons-math-3.6-RC2-site/jacoco/org.apache.commons.math3.stat.clustering/DBSCANClusterer.java.html
 public class MosaiqueFilter extends ImaproFilterFx {
     public static ImaproFilterFxLoader LOADER = env -> new MosaiqueFilter(env);
     public @FXML
